@@ -9,9 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "blockly": "^8.0.3",
+    "js-cookie": "^3.0.1",
+    "js-interpreter": "^2.3.1",
     "next": "12.2.0",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "socket.io": "^4.5.1",
+    "socket.io-client": "^4.5.1"
   },
   "devDependencies": {
     "eslint": "8.19.0",
