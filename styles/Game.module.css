@@ -1,0 +1,54 @@
+#blocklyDiv {
+    height: 575px;
+    width: 600px;
+    position: relative;
+    float: left;
+    top: 5px;
+}
+
+#readBlockly {
+    height: 575px;
+    width: 300px;
+    position: relative;
+    float: left;
+    top: 5px;
+}
+
+.buttonClass {
+    position: relative;
+}
+
+.gameMap {
+    height: 500px;
+    width: 500px;
+    position: absolute;
+    top: 30px;
+    left: 600px;
+}
+
+.square {
+    background: rgb(233, 233, 233);
+    border: 1px solid #999;
+    float: left;
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 50px;
+    height: 50px;
+    margin-right: -1px;
+    margin-top: -1px;
+    padding: 0;
+    text-align: center;
+    width: 50px;
+}
+
+.wall {
+    filter: brightness(0%);
+}
+
+.player1 {
+    filter: invert(15%) sepia(95%) saturate(6932%) hue-rotate(358deg) brightness(95%) contrast(112%);
+}
+
+.player2 {
+    filter: invert(8%) sepia(99%) saturate(7044%) hue-rotate(247deg) brightness(100%) contrast(145%);
+}
