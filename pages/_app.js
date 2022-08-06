@@ -1,4 +1,5 @@
 import '../styles/globals.css';
+import { useRouter } from 'next/router';
 import { DataContext } from '../components/DataContext';
 import { useState } from 'react';
 import io from 'socket.io-client';
@@ -6,12 +7,14 @@ import io from 'socket.io-client';
 let socket;
 
 export default function MyApp({ Component, pageProps }) {
+    const router = useRouter();
     const [id, setId] = useState();
     const [name, setName] = useState(null);
     const [auth, setAuth] = useState(false);
     const [session, setSession] = useState(false);
     const [members, setMembers] = useState([]);
     const [room, setRoom] = useState(null);
+    const [role, setRole] = useState(null);
 
     const login = (name) => {
         setName(name);
@@ -49,6 +52,18 @@ export default function MyApp({ Component, pageProps }) {
             setMembers(msg.clients);
         });
 
+        socket.on('clients-and-role', msg => {
+            setRole(msg.role);
+            setMembers(msg.clients);
+        });
+
+        socket.on('router-push', roomMember => {
+            let role = roomMember.find(member => member.socketId == socket.id).role;
+            setRole(role);
+            setSession(true);
+            router.push('game')
+        })
+
         socket.on('disconnect', () => {
             console.log('disconnect');
         });
@@ -56,6 +71,10 @@ export default function MyApp({ Component, pageProps }) {
 
     const roomHandler = (room) => {
         socket.emit('roomHandler', { id: id, room: room });
+    }
+
+    const roleHandler = (role) => {
+        socket.emit('roleHandler', { id: id, role: role });
     }
 
     const roomRender = (props) => {
@@ -80,10 +99,30 @@ export default function MyApp({ Component, pageProps }) {
                     <>
                         <h3>メンバー</h3>
                         {members.filter(client => client.room == props).map(member => {
-                            return <li key={key++}>{member.name}</li>
+                            return <li key={key++}>{member.name}({member.role})</li>
                         })}
                     </>
                 )}
+            </>
+        )
+    }
+
+    const roleRender = () => {
+        return (
+            <>
+                <p>チームと役割</p>
+                <button type="button" name="role" value="driver1" id="driver1"
+                    onClick={() => { roleHandler("d1") }}
+                >チーム1ドライバー</button>
+                <button type="button" name="role" value="navigator1" id="navigator1"
+                    onClick={() => { roleHandler("n1") }}
+                >チーム1ナビゲーター</button><br />
+                <button type="button" name="role" value="driver2" id="driver2"
+                    onClick={() => { roleHandler("d2") }}
+                >チーム2ドライバー</button>
+                <button type="button" name="role" value="navigator2" id="navigator2"
+                    onClick={() => { roleHandler("n2") }}
+                >チーム2ナビゲーター</button>
             </>
         )
     }
@@ -108,11 +147,12 @@ export default function MyApp({ Component, pageProps }) {
                     <h1>あなたの名前は {name} です</h1>
                     <button onClick={() => { logout() }}>ログアウト</button>
                     {roomRender(room)}
+                    {roleRender()}
                 </>
             )}
             {auth && session && (
                 <>
-                    <DataContext.Provider value={{ socket: socket, id: id }}>
+                    <DataContext.Provider value={{ socket: socket, id: id, role: role }}>
                         <Component {...pageProps} />
                     </DataContext.Provider>
                 </>
