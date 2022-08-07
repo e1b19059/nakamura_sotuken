@@ -66,6 +66,9 @@ export default function MyApp({ Component, pageProps }) {
 
         socket.on('disconnect', () => {
             console.log('disconnect');
+            alert('通信が切断されました。');
+            router.push('/');
+            logout();
         });
     }
 
@@ -101,6 +104,7 @@ export default function MyApp({ Component, pageProps }) {
                         {members.filter(client => client.room == props).map(member => {
                             return <li key={key++}>{member.name}({member.role})</li>
                         })}
+                        {roleRender()}
                     </>
                 )}
             </>
@@ -110,7 +114,7 @@ export default function MyApp({ Component, pageProps }) {
     const roleRender = () => {
         return (
             <>
-                <p>チームと役割</p>
+                <h3>チームと役割</h3>
                 <button type="button" name="role" value="driver1" id="driver1"
                     onClick={() => { roleHandler("d1") }}
                 >チーム1ドライバー</button>
@@ -147,7 +151,6 @@ export default function MyApp({ Component, pageProps }) {
                     <h1>あなたの名前は {name} です</h1>
                     <button onClick={() => { logout() }}>ログアウト</button>
                     {roomRender(room)}
-                    {roleRender()}
                 </>
             )}
             {auth && session && (

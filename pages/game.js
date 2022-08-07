@@ -1,6 +1,6 @@
 import Head from 'next/head';
-import Link from 'next/link';
 import Image from 'next/image'
+import { useRouter } from 'next/router';
 
 import { useEffect, useRef, useContext, useState } from 'react';
 import { DataContext } from '../components/DataContext';
@@ -26,6 +26,7 @@ const defaultX2 = 9;
 const defaultY2 = 1;
 
 export default function Game() {
+    const router = useRouter();
     const context = useContext(DataContext);
     const socket = context.socket;
     const id = context.id;
@@ -72,12 +73,11 @@ export default function Game() {
         socketInitializer();
         return () => {
             socket.off('you-are-first');
-            socket.off('pass-turn');
-            socket.off('pass-run');
             socket.off('friend-block');
             socket.off('enemy-block');
             socket.off('friend-block-run');
             socket.off('enemy-block-run');
+            socket.off('result-router');
         }
     });
 
@@ -86,16 +86,6 @@ export default function Game() {
             setFirst(first);
             setTurn(first);
         })
-
-        socket.on('pass-turn', () => {
-            console.log('pass-turn受信')
-            setTurn(prevTurn => !prevTurn);
-        })
-
-        socket.on('pass-run', () => {
-            stepRun();
-            console.log('pass-run受信')
-        });
 
         socket.on('friend-block', blockXml => {
             friendRef.current.workspace.clear();
@@ -127,6 +117,10 @@ export default function Game() {
                 console.log('enemy-updated+run');
                 return !prevTurn;
             });
+        })
+
+        socket.on('result-router', () => {
+            router.push('result');
         })
     }
 
@@ -168,17 +162,10 @@ export default function Game() {
         return code;
     }
 
-    function turnChange() {
-        setTurn(prevTurn => {
-            socket.emit('pass-turn', { id: id, role: role, turn: prevTurn });
-            return !prevTurn;
-        });
-    }
-
     function doCode() {
         setTurn(prevTurn => {
             stepRun();
-            socket.emit('pass-block-run', { block: friendRef.current.getDomText(), id: id, role: role });
+            socket.emit('block-and-run', { block: friendRef.current.getDomText(), id: id, role: role });
             console.log('実行')
             return !prevTurn;
         })
@@ -505,12 +492,10 @@ export default function Game() {
             <Head>
                 <title>ゲーム</title>
             </Head>
-            <Link href="/">
-                <a onClick={() => { stopEmit() }}>ホームへ</a>
-            </Link>
             <div className={styles.buttonClass}>
                 <button onClick={getMiss}>ミスの回数</button>
                 <button onClick={getTurn}>ターン確認</button>
+                <button onClick={() => { socket.emit('game-finish') }}>ゲーム終了</button>
             </div>
             <RenderField field={field} />
             {driver && (
