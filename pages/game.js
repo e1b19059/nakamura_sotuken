@@ -72,8 +72,6 @@ export default function Game() {
         socketInitializer();
         return () => {
             socket.off('you-are-first');
-            socket.off('pass-turn');
-            socket.off('pass-run');
             socket.off('friend-block');
             socket.off('enemy-block');
             socket.off('friend-block-run');
@@ -86,16 +84,6 @@ export default function Game() {
             setFirst(first);
             setTurn(first);
         })
-
-        socket.on('pass-turn', () => {
-            console.log('pass-turn受信')
-            setTurn(prevTurn => !prevTurn);
-        })
-
-        socket.on('pass-run', () => {
-            stepRun();
-            console.log('pass-run受信')
-        });
 
         socket.on('friend-block', blockXml => {
             friendRef.current.workspace.clear();
@@ -166,13 +154,6 @@ export default function Game() {
             code = BlocklyJS.workspaceToCode(enemyRef.current.workspace);
         }
         return code;
-    }
-
-    function turnChange() {
-        setTurn(prevTurn => {
-            socket.emit('pass-turn', { id: id, role: role, turn: prevTurn });
-            return !prevTurn;
-        });
     }
 
     function doCode() {
@@ -505,9 +486,6 @@ export default function Game() {
             <Head>
                 <title>ゲーム</title>
             </Head>
-            <Link href="/">
-                <a onClick={() => { stopEmit() }}>ホームへ</a>
-            </Link>
             <div className={styles.buttonClass}>
                 <button onClick={getMiss}>ミスの回数</button>
                 <button onClick={getTurn}>ターン確認</button>

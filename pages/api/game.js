@@ -10,7 +10,6 @@ export default function socketHandler(req, res) {
         const gameNS = io.of('/game');
 
         gameNS.on('connection', socket => {
-
             socket.on('firstConnect', msg => {
                 let usrobj = {
                     name: msg.name,
@@ -70,18 +69,6 @@ export default function socketHandler(req, res) {
                 } else {
                     socket.emit('you-are-first', false);
                 }
-            })
-
-            socket.on('pass-turn', msg => {
-                let room = store[msg.id].room;
-                socket.broadcast.to(room).emit('pass-turn');
-            })
-
-            //msg={id}
-            socket.on('pass-run', msg=>{
-                let room = store[msg.id].room;
-                socket.broadcast.to(room).emit('pass-run');
-                console.log('pass-run受信')
             })
 
             // ワークスペースの共有、msg={block,id,role}
