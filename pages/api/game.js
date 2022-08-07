@@ -15,7 +15,8 @@ export default function socketHandler(req, res) {
                     name: msg.name,
                     socketId: socket.id,
                     room: null,
-                    role: null
+                    role: null,
+                    status: null
                 }
                 if (empty > 0) {
                     let emptyId = store.findIndex(client => client.socketId == null)
@@ -50,7 +51,7 @@ export default function socketHandler(req, res) {
             socket.on('roleHandler', msg => {
                 let roomMember = store.filter(client => client.room == store[msg.id].room);
                 store[msg.id].role = msg.role;
-                
+
                 socket.emit('clients-and-role', { clients: store, room: msg.room });
                 socket.broadcast.emit('all-clients', { clients: store });
 
@@ -87,14 +88,14 @@ export default function socketHandler(req, res) {
                         } else {
                             gameNS.to(roomMember[i].socketId).emit('enemy-block', msg.block);
                         }
-                    }else if (roomMember[i].role == "d1" && msg.role == "d2" 
-                            || roomMember[i].role == "d2" && msg.role == "d1") {
+                    } else if (roomMember[i].role == "d1" && msg.role == "d2"
+                        || roomMember[i].role == "d2" && msg.role == "d1") {
                         gameNS.to(roomMember[i].socketId).emit('enemy-block', msg.block);
                     }
                 }
             })
 
-            socket.on('block-and-run', msg =>{
+            socket.on('block-and-run', msg => {
                 let roomMember = store.filter(client => client.room == store[msg.id].room)
                 for (let i = 0; i < roomMember.length; i++) {
                     if (roomMember[i].role == "n1") {
@@ -109,10 +110,23 @@ export default function socketHandler(req, res) {
                         } else {
                             gameNS.to(roomMember[i].socketId).emit('enemy-block-run', msg.block);
                         }
-                    }else if (roomMember[i].role == "d1" && msg.role == "d2" 
-                            || roomMember[i].role == "d2" && msg.role == "d1") {
+                    } else if (roomMember[i].role == "d1" && msg.role == "d2"
+                        || roomMember[i].role == "d2" && msg.role == "d1") {
                         gameNS.to(roomMember[i].socketId).emit('enemy-block-run', msg.block);
                     }
+                }
+            });
+
+            socket.on('game-finish', () => {
+                let index = store.findIndex(client => client.socketId == socket.id);
+                let room = store[index].room;
+                let roomMember;
+
+                store[index].status = "finished";
+                roomMember = store.filter(client => client.room == room);
+
+                if (roomMember.every(client => client.status == "finished")) {
+                    gameNS.to(room).emit('result-router');
                 }
             });
 
@@ -121,6 +135,7 @@ export default function socketHandler(req, res) {
                 let index = store.findIndex(client => client.socketId == socket.id);
                 store[index].socketId = null;
                 store[index].room = null;
+                store[index].status = null;
                 empty++;
                 socket.broadcast.emit('all-clients', { clients: store });
             });

@@ -1,6 +1,6 @@
 import Head from 'next/head';
-import Link from 'next/link';
 import Image from 'next/image'
+import { useRouter } from 'next/router';
 
 import { useEffect, useRef, useContext, useState } from 'react';
 import { DataContext } from '../components/DataContext';
@@ -26,6 +26,7 @@ const defaultX2 = 9;
 const defaultY2 = 1;
 
 export default function Game() {
+    const router = useRouter();
     const context = useContext(DataContext);
     const socket = context.socket;
     const id = context.id;
@@ -76,6 +77,7 @@ export default function Game() {
             socket.off('enemy-block');
             socket.off('friend-block-run');
             socket.off('enemy-block-run');
+            socket.off('result-router');
         }
     });
 
@@ -115,6 +117,10 @@ export default function Game() {
                 console.log('enemy-updated+run');
                 return !prevTurn;
             });
+        })
+
+        socket.on('result-router', () => {
+            router.push('result');
         })
     }
 
@@ -489,6 +495,7 @@ export default function Game() {
             <div className={styles.buttonClass}>
                 <button onClick={getMiss}>ミスの回数</button>
                 <button onClick={getTurn}>ターン確認</button>
+                <button onClick={()=>{socket.emit('game-finish')}}>ゲーム終了</button>
             </div>
             <RenderField field={field} />
             {driver && (
