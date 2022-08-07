@@ -159,7 +159,7 @@ export default function Game() {
     function doCode() {
         setTurn(prevTurn => {
             stepRun();
-            socket.emit('pass-block-run', { block: friendRef.current.getDomText(), id: id, role: role });
+            socket.emit('block-and-run', { block: friendRef.current.getDomText(), id: id, role: role });
             console.log('実行')
             return !prevTurn;
         })

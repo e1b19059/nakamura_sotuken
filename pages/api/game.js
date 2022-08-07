@@ -94,7 +94,7 @@ export default function socketHandler(req, res) {
                 }
             })
 
-            socket.on('pass-block-run', msg =>{
+            socket.on('block-and-run', msg =>{
                 let roomMember = store.filter(client => client.room == store[msg.id].room)
                 for (let i = 0; i < roomMember.length; i++) {
                     if (roomMember[i].role == "n1") {
