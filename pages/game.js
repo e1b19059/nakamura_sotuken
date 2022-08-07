@@ -495,7 +495,7 @@ export default function Game() {
             <div className={styles.buttonClass}>
                 <button onClick={getMiss}>ミスの回数</button>
                 <button onClick={getTurn}>ターン確認</button>
-                <button onClick={()=>{socket.emit('game-finish')}}>ゲーム終了</button>
+                <button onClick={() => { socket.emit('game-finish') }}>ゲーム終了</button>
             </div>
             <RenderField field={field} />
             {driver && (
