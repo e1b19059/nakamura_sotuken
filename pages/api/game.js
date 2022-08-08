@@ -31,7 +31,7 @@ export default function socketHandler(req, res) {
 
             socket.on('roomHandler', msg => {
                 if (store.filter(client => client.room == msg.room).length >= 4) {
-                    socket.emit('roomError', `${msg.room}は満員です`);
+                    socket.emit('roomError', `room${msg.room}は満員です`);
                 } else {
                     let oldRoom = null;
                     if (socket.rooms.size == 1) {
@@ -123,6 +123,7 @@ export default function socketHandler(req, res) {
                 let roomMember;
 
                 store[index].status = "finished";
+                store[index].room = null;
                 roomMember = store.filter(client => client.room == room);
 
                 if (roomMember.every(client => client.status == "finished")) {
