@@ -25,9 +25,13 @@ export default function MyApp({ Component, pageProps }) {
     const logout = () => {
         setName(null);
         setAuth(false);
+        setSession(false);
+        setRoom(null);
         if (socket.connected == true) {
+            socket.off('disconnect');
             socket.disconnect();
         }
+        router.push('/');
     }
 
     const socketInitializer = async (name) => {
@@ -67,7 +71,6 @@ export default function MyApp({ Component, pageProps }) {
         socket.on('disconnect', () => {
             console.log('disconnect');
             alert('通信が切断されました。');
-            router.push('/');
             logout();
         });
     }
@@ -155,7 +158,7 @@ export default function MyApp({ Component, pageProps }) {
             )}
             {auth && session && (
                 <>
-                    <DataContext.Provider value={{ socket: socket, id: id, role: role }}>
+                    <DataContext.Provider value={{ socket: socket, id: id, role: role, logout: () => { logout() } }}>
                         <Component {...pageProps} />
                     </DataContext.Provider>
                 </>

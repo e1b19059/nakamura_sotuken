@@ -1,15 +1,17 @@
 import Head from 'next/head';
-import Link from 'next/link';
+import { useContext } from 'react';
+import { DataContext } from '../components/DataContext';
 
 export default function Result() {
+  const context = useContext(DataContext);
+  const logout = context.logout;
+
   return (
     <>
       <Head>
         <title>リザルト</title>
       </Head>
-      <Link href="/">
-        <a>ホームへ</a>
-      </Link>
+      <button onClick={() => { logout() }}>ログアウト</button>
       <h1>スコア</h1>
     </>
   );
