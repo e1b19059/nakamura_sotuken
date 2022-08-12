@@ -32,17 +32,15 @@ export default function Game() {
     const id = context.id;
     const role = context.role;
 
+    const friendRef = useRef(null);
+    const enemyRef = useRef(null);
+
     const [field, setField] = useState([]);
     const [player1, setPlayer1] = useState({ x: defaultX1, y: defaultY1 });
     const [player2, setPlayer2] = useState({ x: defaultX2, y: defaultY2 });
     const [miss, setMiss] = useState(0);
-
-    const friendRef = useRef(null);
-    const enemyRef = useRef(null);
-
     const [first, setFirst] = useState(false);
     const [turn, setTurn] = useState(false);
-
     const [driver, setDriver] = useState(() => role == "d1" || role == "d2" ? true : false);
     const [navigator, setNavigator] = useState(() => role == "n1" || role == "n2" ? true : false);
 
