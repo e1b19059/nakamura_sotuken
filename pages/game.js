@@ -32,17 +32,15 @@ export default function Game() {
     const id = context.id;
     const role = context.role;
 
+    const friendRef = useRef(null);
+    const enemyRef = useRef(null);
+
     const [field, setField] = useState([]);
     const [player1, setPlayer1] = useState({ x: defaultX1, y: defaultY1 });
     const [player2, setPlayer2] = useState({ x: defaultX2, y: defaultY2 });
     const [miss, setMiss] = useState(0);
-
-    const friendRef = useRef(null);
-    const enemyRef = useRef(null);
-
     const [first, setFirst] = useState(false);
     const [turn, setTurn] = useState(false);
-
     const [driver, setDriver] = useState(() => role == "d1" || role == "d2" ? true : false);
     const [navigator, setNavigator] = useState(() => role == "n1" || role == "n2" ? true : false);
 
@@ -110,6 +108,7 @@ export default function Game() {
         })
 
         socket.on('enemy-block-run', blockXml => {
+            let workspace = friendRef.current.getDomText();
             setTurn(prevTurn => {
                 enemyRef.current.workspace.clear();
                 enemyRef.current.setXml(blockXml);
@@ -117,6 +116,7 @@ export default function Game() {
                 console.log('enemy-updated+run');
                 return !prevTurn;
             });
+            setTimeout(() => { friendRef.current.setXml(workspace); }, 1000);
         })
 
         socket.on('result-router', () => {
@@ -163,12 +163,14 @@ export default function Game() {
     }
 
     function doCode() {
+        let workspace = friendRef.current.getDomText();
         setTurn(prevTurn => {
             stepRun();
             socket.emit('block-and-run', { block: friendRef.current.getDomText(), id: id, role: role });
             console.log('実行')
             return !prevTurn;
         })
+        setTimeout(() => { friendRef.current.setXml(workspace); }, 1000);
     }
 
     function stepRun() {
@@ -500,38 +502,55 @@ export default function Game() {
             <RenderField field={field} />
             {driver && (
                 <>
-                    <div className={styles.buttonClass}>
-                        <button onClick={exBlock}>送信</button>
-                        <button onClick={switchEmit}>開始 / 停止</button>
-                        <button onClick={() => { doCode() }}>実行</button>
-                    </div>
-                    <BlocklyComponent ref={friendRef}
-                        id={styles.blocklyDiv}
-                        readOnly={false} trashcan={true}
-                        move={{
-                            scrollbars: true,
-                            drag: true,
-                            wheel: true
-                        }}
-                        initialXml={`<xml xmlns="http://www.w3.org/1999/xhtml"></xml>`}
-                    >
-                        <Block type="go_left" />
-                        <Block type="go_right" />
-                        <Block type="go_up" />
-                        <Block type="go_down" />
-                        <Block type="put_obstacle" />
-                        <Block type="get_left" />
-                        <Block type="get_right" />
-                        <Block type="get_up" />
-                        <Block type="get_down" />
-                        <Block type="controls_repeat_ext">
-                            <Value name="TIMES">
-                                <Shadow type="math_number">
-                                    <Field name="NUM">3</Field>
-                                </Shadow>
-                            </Value>
-                        </Block>
-                    </BlocklyComponent>
+                    {turn && (
+                        <>
+                            <div className={styles.buttonClass}>
+                                <button onClick={exBlock}>送信</button>
+                                <button onClick={switchEmit}>開始 / 停止</button>
+                                <button onClick={() => { doCode() }}>実行</button>
+                            </div>
+                            <BlocklyComponent ref={friendRef}
+                                id={styles.blocklyDiv}
+                                readOnly={false} trashcan={true}
+                                move={{
+                                    scrollbars: true,
+                                    drag: true,
+                                    wheel: true
+                                }}
+                                initialXml={`<xml xmlns="http://www.w3.org/1999/xhtml"></xml>`}
+                            >
+                                <Block type="go_left" />
+                                <Block type="go_right" />
+                                <Block type="go_up" />
+                                <Block type="go_down" />
+                                <Block type="put_obstacle" />
+                                <Block type="get_left" />
+                                <Block type="get_right" />
+                                <Block type="get_up" />
+                                <Block type="get_down" />
+                                <Block type="controls_repeat_ext">
+                                    <Value name="TIMES">
+                                        <Shadow type="math_number">
+                                            <Field name="NUM">3</Field>
+                                        </Shadow>
+                                    </Value>
+                                </Block>
+                            </BlocklyComponent>
+                        </>
+                    )}
+                    {!turn && (
+                        <>
+                            <BlocklyComponent ref={friendRef}
+                                id={styles.blocklyDiv} readOnly={true}
+                                move={{
+                                    scrollbars: true,
+                                    drag: true,
+                                    wheel: true
+                                }}
+                                initialXml={`<xml xmlns="http://www.w3.org/1999/xhtml"></xml>`}
+                            ></BlocklyComponent>
+                        </>
+                    )}
                     <BlocklyComponent ref={enemyRef}></BlocklyComponent>
                 </>
             )}

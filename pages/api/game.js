@@ -59,7 +59,6 @@ export default function socketHandler(req, res) {
                     && roomMember.find(client => client.role == "n1")
                     && roomMember.find(client => client.role == "d2")
                     && roomMember.find(client => client.role == "n2")) {
-                    console.log('Role Conpletes');
                     gameNS.to(store[msg.id].room).emit('router-push', roomMember);
                 }
             });
@@ -72,7 +71,6 @@ export default function socketHandler(req, res) {
                 }
             })
 
-            // ワークスペースの共有、msg={block,id,role}
             socket.on('blocks', msg => {
                 let roomMember = store.filter(client => client.room == store[msg.id].room)
                 for (let i = 0; i < roomMember.length; i++) {
