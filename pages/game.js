@@ -43,6 +43,7 @@ export default function Game() {
     const [turn, setTurn] = useState(false);
     const [driver, setDriver] = useState(() => role == "d1" || role == "d2" ? true : false);
     const [navigator, setNavigator] = useState(() => role == "n1" || role == "n2" ? true : false);
+    const [finish, setFinish] = useState(false)
 
     useEffect(() => {
         let array = [];
@@ -83,6 +84,10 @@ export default function Game() {
         socket.on('you-are-first', first => {
             setFirst(first);
             setTurn(first);
+            if(first == true && (role == 'd1' || role == 'd2')){
+                console.log('あなたは先行です');
+                startEmit();
+            }
         })
 
         socket.on('friend-block', blockXml => {
@@ -120,7 +125,8 @@ export default function Game() {
         })
 
         socket.on('result-router', () => {
-            router.push('result');
+            setFinish(true);
+            stopEmit();
         })
     }
 
@@ -140,8 +146,8 @@ export default function Game() {
         if (intervalId != null) {
             clearInterval(intervalId);
             intervalId = null;
+            console.log('停止');
         }
-        console.log('停止');
     }
 
     function switchEmit() {
@@ -152,6 +158,40 @@ export default function Game() {
         }
     }
 
+    function judgeResult() {
+        let flag1 = 0;
+        let flag2 = 0;
+        setField(prevField => {
+            const array = prevField;
+            setPlayer1(prevPlayer1 => {
+                const x = prevPlayer1.x;
+                const y = prevPlayer1.y;
+                // ゲーム終了の判定、条件は後から変更する
+                if (0 < x && x < 10 && 0 < y && y < 10 && array[x][y - 1].value == 10 && array[x][y + 1].value == 10 && array[x - 1][y].value == 10 && array[x + 1][y].value == 10) {
+                    flag1 = 1;
+                }
+                setPlayer2(prevPlayer2 => {
+                    const x = prevPlayer2.x;
+                    const y = prevPlayer2.y;
+                    // ゲーム終了の判定、条件は後から変更する
+                    if (0 < x && x < 10 && 0 < y && y < 10 && array[x][y - 1].value == 10 && array[x][y + 1].value == 10 && array[x - 1][y].value == 10 && array[x + 1][y].value == 10) {
+                        flag2 = 1;
+                    }
+                    return { x: x, y: y }
+                });
+                return { x: x, y: y }
+            });
+            if (flag1 == 1 && flag2 == 1) {
+                socket.emit('game-finish');
+            } else if (flag1 == 1 && flag2 == 0) {
+                socket.emit('game-finish');
+            } else if (flag1 == 0 && flag2 == 1) {
+                socket.emit('game-finish');
+            }
+            return array;
+        })
+    }
+
     function getCode() {
         let code;
         if (turn == true) {
@@ -159,7 +199,7 @@ export default function Game() {
         } else {
             code = BlocklyJS.workspaceToCode(enemyRef.current.workspace);
         }
-        return code;
+        return code + 'judgeResult();\n';
     }
 
     function doCode() {
@@ -182,6 +222,9 @@ export default function Game() {
             }
         }
         stepCode();
+        if(role == 'd1' || role == 'd2'){
+            switchEmit();
+        }
     }
 
     let initFunc = function (interpreter, scope) {
@@ -209,6 +252,10 @@ export default function Game() {
             return put_obstacle(direction);
         };
         interpreter.setProperty(scope, 'put_obstacle', interpreter.createNativeFunction(put_obstacle_wrapper));
+        let judge_wrapper = function () {
+            return judgeResult();
+        };
+        interpreter.setProperty(scope, 'judgeResult', interpreter.createNativeFunction(judge_wrapper));
     }
 
     function console_log(value) {
@@ -497,18 +544,19 @@ export default function Game() {
             <div className={styles.buttonClass}>
                 <button onClick={getMiss}>ミスの回数</button>
                 <button onClick={getTurn}>ターン確認</button>
-                <button onClick={() => { socket.emit('game-finish') }}>ゲーム終了</button>
+                {finish && <button onClick={() => { router.push('result') }}>結果画面へ</button>}
             </div>
             <RenderField field={field} />
             {driver && (
                 <>
                     {turn && (
                         <>
-                            <div className={styles.buttonClass}>
-                                <button onClick={exBlock}>送信</button>
-                                <button onClick={switchEmit}>開始 / 停止</button>
-                                <button onClick={() => { doCode() }}>実行</button>
-                            </div>
+                            {!finish &&
+                                <div className={styles.buttonClass}>
+                                    <button onClick={() => { friendRef.current.workspace.clear(); }}>消去</button>
+                                    <button onClick={() => { doCode() }}>実行</button>
+                                </div>
+                            }
                             <BlocklyComponent ref={friendRef}
                                 id={styles.blocklyDiv}
                                 readOnly={false} trashcan={true}
