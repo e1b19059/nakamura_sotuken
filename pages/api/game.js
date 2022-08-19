@@ -121,7 +121,6 @@ export default function socketHandler(req, res) {
                 let roomMember;
 
                 store[index].status = "finished";
-                store[index].room = null;
                 roomMember = store.filter(client => client.room == room);
 
                 if (roomMember.every(client => client.status == "finished")) {
