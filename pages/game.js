@@ -40,7 +40,8 @@ export default function Game() {
     const [player2, setPlayer2] = useState({ x: defaultX2, y: defaultY2 });
     const [miss, setMiss] = useState(0);
     const [first, setFirst] = useState(false);
-    const [turn, setTurn] = useState(false);
+    const [turn, setTurn] = useState(0);
+    const [myturn, setMyTurn] = useState(false);
     const [driver, setDriver] = useState(() => role == "d1" || role == "d2" ? true : false);
     const [navigator, setNavigator] = useState(() => role == "n1" || role == "n2" ? true : false);
     const [finish, setFinish] = useState(false)
@@ -83,7 +84,7 @@ export default function Game() {
     const socketInitializer = () => {
         socket.on('you-are-first', first => {
             setFirst(first);
-            setTurn(first);
+            setMyTurn(first);
             if(first == true && (role == 'd1' || role == 'd2')){
                 console.log('あなたは先行です');
                 startEmit();
@@ -103,23 +104,23 @@ export default function Game() {
         })
 
         socket.on('friend-block-run', blockXml => {
-            setTurn(prevTurn => {
+            setMyTurn(prevMyTurn => {
                 friendRef.current.workspace.clear();
                 friendRef.current.setXml(blockXml);
                 stepRun();
                 console.log('friend-updated+run');
-                return !prevTurn;
+                return !prevMyTurn;
             });
         })
 
         socket.on('enemy-block-run', blockXml => {
             let workspace = friendRef.current.getDomText();
-            setTurn(prevTurn => {
+            setMyTurn(prevMyTurn => {
                 enemyRef.current.workspace.clear();
                 enemyRef.current.setXml(blockXml);
                 stepRun();
                 console.log('enemy-updated+run');
-                return !prevTurn;
+                return !prevMyTurn;
             });
             setTimeout(() => { friendRef.current.setXml(workspace); }, 1000);
         })
@@ -194,7 +195,7 @@ export default function Game() {
 
     function getCode() {
         let code;
-        if (turn == true) {
+        if (myturn == true) {
             code = BlocklyJS.workspaceToCode(friendRef.current.workspace);
         } else {
             code = BlocklyJS.workspaceToCode(enemyRef.current.workspace);
@@ -204,11 +205,11 @@ export default function Game() {
 
     function doCode() {
         let workspace = friendRef.current.getDomText();
-        setTurn(prevTurn => {
+        setMyTurn(prevMyTurn => {
             stepRun();
             socket.emit('block-and-run', { block: friendRef.current.getDomText(), id: id, role: role });
             console.log('実行')
-            return !prevTurn;
+            return !prevMyTurn;
         })
         setTimeout(() => { friendRef.current.setXml(workspace); }, 1000);
     }
@@ -225,6 +226,7 @@ export default function Game() {
         if(role == 'd1' || role == 'd2'){
             switchEmit();
         }
+        setTurn(prevTurn => prevTurn + 1);
     }
 
     let initFunc = function (interpreter, scope) {
@@ -263,7 +265,7 @@ export default function Game() {
     }
 
     const go_left = () => {
-        if (turn == true && first == true || turn == false && first == false) {
+        if (myturn == true && first == true || myturn == false && first == false) {
             setPlayer1(prevPlayer1 => {
                 const x = prevPlayer1.x;
                 const y = prevPlayer1.y;
@@ -303,7 +305,7 @@ export default function Game() {
     }
 
     const go_right = () => {
-        if (turn == true && first == true || turn == false && first == false) {
+        if (myturn == true && first == true || myturn == false && first == false) {
             setPlayer1(prevPlayer1 => {
                 const x = prevPlayer1.x;
                 const y = prevPlayer1.y;
@@ -343,7 +345,7 @@ export default function Game() {
     }
 
     const go_up = () => {
-        if (turn == true && first == true || turn == false && first == false) {
+        if (myturn == true && first == true || myturn == false && first == false) {
             setPlayer1(prevPlayer1 => {
                 const x = prevPlayer1.x;
                 const y = prevPlayer1.y;
@@ -383,7 +385,7 @@ export default function Game() {
     }
 
     const go_down = () => {
-        if (turn == true && first == true || turn == false && first == false) {
+        if (myturn == true && first == true || myturn == false && first == false) {
             setPlayer1(prevPlayer1 => {
                 const x = prevPlayer1.x;
                 const y = prevPlayer1.y;
@@ -423,7 +425,7 @@ export default function Game() {
     }
 
     const put_obstacle = (direction) => {
-        if (turn == true && first == true || turn == false && first == false) {
+        if (myturn == true && first == true || myturn == false && first == false) {
             setPlayer1(prevPlayer1 => {
                 const x = prevPlayer1.x;
                 const y = prevPlayer1.y;
@@ -532,8 +534,8 @@ export default function Game() {
     const getMiss = () => {
         console.log(miss);
     }
-    const getTurn = () => {
-        console.log('turn:' + turn);
+    const getMyTurn = () => {
+        console.log('myturn:' + myturn + ',turn数:' + turn);
     }
 
     return (
@@ -543,13 +545,13 @@ export default function Game() {
             </Head>
             <div className={styles.buttonClass}>
                 <button onClick={getMiss}>ミスの回数</button>
-                <button onClick={getTurn}>ターン確認</button>
+                <button onClick={getMyTurn}>ターン確認</button>
                 {finish && <button onClick={() => { router.push('result') }}>結果画面へ</button>}
             </div>
             <RenderField field={field} />
             {driver && (
                 <>
-                    {turn && (
+                    {myturn && (
                         <>
                             {!finish &&
                                 <div className={styles.buttonClass}>
@@ -586,7 +588,7 @@ export default function Game() {
                             </BlocklyComponent>
                         </>
                     )}
-                    {!turn && (
+                    {!myturn && (
                         <>
                             <BlocklyComponent ref={friendRef}
                                 id={styles.blocklyDiv} readOnly={true}
