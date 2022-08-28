@@ -25,6 +25,11 @@ const defaultY1 = 1;
 const defaultX2 = 9;
 const defaultY2 = 1;
 
+const EMPTY = 0;
+const PLAYER1 = 1;
+const PLAYER2 = 2;
+const OBSTACLE = 10;
+
 export default function Game() {
     const router = useRouter();
     const context = useContext(DataContext);
@@ -53,12 +58,12 @@ export default function Game() {
             for (let j = 0; j < fieldWidth; j++) {
                 array[i][j] = {
                     key: '(' + i + ',' + j + ')',
-                    value: 0
+                    value: EMPTY
                 }
             }
         }
-        array[defaultX1][defaultY1].value = 1;
-        array[defaultX2][defaultY2].value = 2;
+        array[defaultX1][defaultY1].value = PLAYER1;
+        array[defaultX2][defaultY2].value = PLAYER2;
         setField(array);
     }, []);
 
@@ -270,12 +275,12 @@ export default function Game() {
                 const x = prevPlayer1.x;
                 const y = prevPlayer1.y;
                 let resultY = y;
-                if (y > 0 && field[x][y - 1].value == 0) {
+                if (y > 0 && field[x][y - 1].value == EMPTY) {
                     resultY--;
                     setField(prevField => {
                         const array = prevField;
                         array[x][resultY].value = array[x][y].value;
-                        array[x][y].value = 0;
+                        array[x][y].value = EMPTY;
                         return array;
                     });
                 } else {
@@ -288,12 +293,12 @@ export default function Game() {
                 const x = prevPlayer2.x;
                 const y = prevPlayer2.y;
                 let resultY = y;
-                if (y > 0 && field[x][y - 1].value == 0) {
+                if (y > 0 && field[x][y - 1].value == EMPTY) {
                     resultY--;
                     setField(prevField => {
                         const array = prevField;
                         array[x][resultY].value = array[x][y].value;
-                        array[x][y].value = 0;
+                        array[x][y].value = EMPTY;
                         return array;
                     });
                 } else {
@@ -310,12 +315,12 @@ export default function Game() {
                 const x = prevPlayer1.x;
                 const y = prevPlayer1.y;
                 let resultY = y;
-                if (y < fieldWidth - 1 && field[x][y + 1].value == 0) {
+                if (y < fieldWidth - 1 && field[x][y + 1].value == EMPTY) {
                     resultY++;
                     setField(prevField => {
                         const array = prevField;
                         array[x][resultY].value = array[x][y].value;
-                        array[x][y].value = 0;
+                        array[x][y].value = EMPTY;
                         return array;
                     });
                 } else {
@@ -328,12 +333,12 @@ export default function Game() {
                 const x = prevPlayer2.x;
                 const y = prevPlayer2.y;
                 let resultY = y;
-                if (y < fieldWidth - 1 && field[x][y + 1].value == 0) {
+                if (y < fieldWidth - 1 && field[x][y + 1].value == EMPTY) {
                     resultY++;
                     setField(prevField => {
                         const array = prevField;
                         array[x][resultY].value = array[x][y].value;
-                        array[x][y].value = 0;
+                        array[x][y].value = EMPTY;
                         return array;
                     });
                 } else {
@@ -350,12 +355,12 @@ export default function Game() {
                 const x = prevPlayer1.x;
                 const y = prevPlayer1.y;
                 let resultX = x;
-                if (x > 0 && field[x - 1][y].value == 0) {
+                if (x > 0 && field[x - 1][y].value == EMPTY) {
                     resultX--;
                     setField(prevField => {
                         const array = prevField;
                         array[resultX][y].value = array[x][y].value;
-                        array[x][y].value = 0;
+                        array[x][y].value = EMPTY;
                         return array;
                     });
                 } else {
@@ -368,12 +373,12 @@ export default function Game() {
                 const x = prevPlayer2.x;
                 const y = prevPlayer2.y;
                 let resultX = x;
-                if (x > 0 && field[x - 1][y].value == 0) {
+                if (x > 0 && field[x - 1][y].value == EMPTY) {
                     resultX--;
                     setField(prevField => {
                         const array = prevField;
                         array[resultX][y].value = array[x][y].value;
-                        array[x][y].value = 0;
+                        array[x][y].value = EMPTY;
                         return array;
                     });
                 } else {
@@ -390,12 +395,12 @@ export default function Game() {
                 const x = prevPlayer1.x;
                 const y = prevPlayer1.y;
                 let resultX = x;
-                if (x < fieldHeight - 1 && field[x + 1][y].value == 0) {
+                if (x < fieldHeight - 1 && field[x + 1][y].value == EMPTY) {
                     resultX++;
                     setField(prevField => {
                         const array = prevField;
                         array[resultX][y].value = array[x][y].value;
-                        array[x][y].value = 0;
+                        array[x][y].value = EMPTY;
                         return array;
                     });
                 } else {
@@ -408,12 +413,12 @@ export default function Game() {
                 const x = prevPlayer2.x;
                 const y = prevPlayer2.y;
                 let resultX = x;
-                if (x < fieldHeight - 1 && field[x + 1][y].value == 0) {
+                if (x < fieldHeight - 1 && field[x + 1][y].value == EMPTY) {
                     resultX++;
                     setField(prevField => {
                         const array = prevField;
                         array[resultX][y].value = array[x][y].value;
-                        array[x][y].value = 0;
+                        array[x][y].value = EMPTY;
                         return array;
                     });
                 } else {
@@ -433,29 +438,29 @@ export default function Game() {
                     const array = prevField;
                     switch (direction) {
                         case 'left':
-                            if (y > 0 && array[x][y - 1].value == 0) {
-                                array[x][y - 1].value = 10;
+                            if (y > 0 && array[x][y - 1].value == EMPTY) {
+                                array[x][y - 1].value = OBSTACLE;
                             } else {
                                 if (first == true) setMiss(prevMiss => prevMiss + 1);
                             }
                             break;
                         case 'right':
-                            if (y < fieldWidth - 1 && array[x][y + 1].value == 0) {
-                                array[x][y + 1].value = 10;
+                            if (y < fieldWidth - 1 && array[x][y + 1].value == EMPTY) {
+                                array[x][y + 1].value = OBSTACLE;
                             } else {
                                 if (first == true) setMiss(prevMiss => prevMiss + 1);
                             }
                             break;
                         case 'up':
-                            if (x > 0 && array[x - 1][y].value == 0) {
-                                array[x - 1][y].value = 10;
+                            if (x > 0 && array[x - 1][y].value == EMPTY) {
+                                array[x - 1][y].value = OBSTACLE;
                             } else {
                                 if (first == true) setMiss(prevMiss => prevMiss + 1);
                             }
                             break;
                         case 'down':
-                            if (x < fieldHeight - 1 && array[x + 1][y].value == 0) {
-                                array[x + 1][y].value = 10;
+                            if (x < fieldHeight - 1 && array[x + 1][y].value == EMPTY) {
+                                array[x + 1][y].value = OBSTACLE;
                             } else {
                                 if (first == true) setMiss(prevMiss => prevMiss + 1);
                             }
@@ -476,29 +481,29 @@ export default function Game() {
                     const array = prevField;
                     switch (direction) {
                         case 'left':
-                            if (y > 0 && array[x][y - 1].value == 0) {
-                                array[x][y - 1].value = 10;
+                            if (y > 0 && array[x][y - 1].value == EMPTY) {
+                                array[x][y - 1].value = OBSTACLE;
                             } else {
                                 if (first != true) setMiss(prevMiss => prevMiss + 1);
                             }
                             break;
                         case 'right':
-                            if (y < fieldWidth - 1 && array[x][y + 1].value == 0) {
-                                array[x][y + 1].value = 10;
+                            if (y < fieldWidth - 1 && array[x][y + 1].value == EMPTY) {
+                                array[x][y + 1].value = OBSTACLE;
                             } else {
                                 if (first != true) setMiss(prevMiss => prevMiss + 1);
                             }
                             break;
                         case 'up':
-                            if (x > 0 && array[x - 1][y].value == 0) {
-                                array[x - 1][y].value = 10;
+                            if (x > 0 && array[x - 1][y].value == EMPTY) {
+                                array[x - 1][y].value = OBSTACLE;
                             } else {
                                 if (first != true) setMiss(prevMiss => prevMiss + 1);
                             }
                             break;
                         case 'down':
-                            if (x < fieldHeight - 1 && array[x + 1][y].value == 0) {
-                                array[x + 1][y].value = 10;
+                            if (x < fieldHeight - 1 && array[x + 1][y].value == EMPTY) {
+                                array[x + 1][y].value = OBSTACLE;
                             } else {
                                 if (first != true) setMiss(prevMiss => prevMiss + 1);
                             }
@@ -520,9 +525,9 @@ export default function Game() {
                 {props.field.map(rowPoints => (
                     rowPoints.map(point => (
                         <div className={styles.square} key={point.key}>
-                            {point.value == 1 ? <Image src="/favicon.ico" alt="Vercel Logo" className={styles.player1} width={48} height={48} /> : null}
-                            {point.value == 2 ? <Image src="/favicon.ico" alt="Vercel Logo" className={styles.player2} width={48} height={48} /> : null}
-                            {point.value == 10 ? <Image src="/favicon.ico" alt="Vercel Logo" className={styles.wall} width={48} height={48} /> : null}
+                            {point.value == PLAYER1 ? <Image src="/favicon.ico" alt="Vercel Logo" className={styles.player1} width={48} height={48} /> : null}
+                            {point.value == PLAYER2 ? <Image src="/favicon.ico" alt="Vercel Logo" className={styles.player2} width={48} height={48} /> : null}
+                            {point.value == OBSTACLE ? <Image src="/favicon.ico" alt="Vercel Logo" className={styles.wall} width={48} height={48} /> : null}
                         </div>
                     ))
                 ))}
