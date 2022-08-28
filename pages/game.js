@@ -75,8 +75,6 @@ export default function Game() {
             socket.off('you-are-first');
             socket.off('friend-block');
             socket.off('enemy-block');
-            socket.off('friend-block-run');
-            socket.off('enemy-block-run');
             socket.off('result-router');
         }
     });
@@ -91,36 +89,36 @@ export default function Game() {
             }
         })
 
-        socket.on('friend-block', blockXml => {
-            friendRef.current.workspace.clear();
-            friendRef.current.setXml(blockXml);
-            console.log('friend-updated');
-        })
-
-        socket.on('enemy-block', blockXml => {
-            enemyRef.current.workspace.clear();
-            enemyRef.current.setXml(blockXml);
-            console.log('enemy-updated');
-        })
-
-        socket.on('friend-block-run', blockXml => {
-            setMyTurn(prevMyTurn => {
+        socket.on('friend-block', msg => {
+            if(msg.run == true){
+                setMyTurn(prevMyTurn => {
+                    friendRef.current.workspace.clear();
+                    friendRef.current.setXml(msg.blockXml);
+                    stepRun(!prevMyTurn);
+                    console.log('friend-updated+run');
+                    return !prevMyTurn;
+                });
+            }else{
                 friendRef.current.workspace.clear();
-                friendRef.current.setXml(blockXml);
-                stepRun(!prevMyTurn);
-                console.log('friend-updated+run');
-                return !prevMyTurn;
-            });
+                friendRef.current.setXml(msg.blockXml);
+                console.log('friend-updated');
+            }
         })
 
-        socket.on('enemy-block-run', blockXml => {
-            setMyTurn(prevMyTurn => {
+        socket.on('enemy-block', msg => {
+            if(msg.run == true){
+                setMyTurn(prevMyTurn => {
+                    enemyRef.current.workspace.clear();
+                    enemyRef.current.setXml(msg.blockXml);
+                    stepRun(!prevMyTurn);
+                    console.log('enemy-updated+run');
+                    return !prevMyTurn;
+                });
+            }else{
                 enemyRef.current.workspace.clear();
-                enemyRef.current.setXml(blockXml);
-                stepRun(!prevMyTurn);
-                console.log('enemy-updated+run');
-                return !prevMyTurn;
-            });
+                enemyRef.current.setXml(msg.blockXml);
+                console.log('enemy-updated');
+            }
         })
 
         socket.on('result-router', () => {
@@ -131,7 +129,7 @@ export default function Game() {
 
     const exBlock = () => {
         console.log('送信')
-        socket.emit('blocks', { block: friendRef.current.getDomText(), id: id, role: role })
+        socket.emit('blocks', { block: friendRef.current.getDomText(), id: id, role: role, run: false })
     }
 
     function startEmit() {
@@ -205,7 +203,7 @@ export default function Game() {
         let workspace = friendRef.current.getDomText();
         setMyTurn(prevMyTurn => {
             stepRun(!prevMyTurn);
-            socket.emit('block-and-run', { block: friendRef.current.getDomText(), id: id, role: role });
+            socket.emit('blocks', { block: friendRef.current.getDomText(), id: id, role: role, run: true });
             console.log('実行')
             return !prevMyTurn;
         })
