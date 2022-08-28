@@ -95,34 +95,26 @@ export default function Game() {
         })
 
         socket.on('friend-block', msg => {
+            friendRef.current.workspace.clear();
+            friendRef.current.setXml(msg.blockXml);
+            console.log('friend-updated');
             if(msg.run == true){
                 setMyTurn(prevMyTurn => {
-                    friendRef.current.workspace.clear();
-                    friendRef.current.setXml(msg.blockXml);
                     stepRun(!prevMyTurn);
-                    console.log('friend-updated+run');
                     return !prevMyTurn;
                 });
-            }else{
-                friendRef.current.workspace.clear();
-                friendRef.current.setXml(msg.blockXml);
-                console.log('friend-updated');
             }
         })
 
         socket.on('enemy-block', msg => {
+            enemyRef.current.workspace.clear();
+            enemyRef.current.setXml(msg.blockXml);
+            console.log('enemy-updated');
             if(msg.run == true){
                 setMyTurn(prevMyTurn => {
-                    enemyRef.current.workspace.clear();
-                    enemyRef.current.setXml(msg.blockXml);
                     stepRun(!prevMyTurn);
-                    console.log('enemy-updated+run');
                     return !prevMyTurn;
                 });
-            }else{
-                enemyRef.current.workspace.clear();
-                enemyRef.current.setXml(msg.blockXml);
-                console.log('enemy-updated');
             }
         })
 
