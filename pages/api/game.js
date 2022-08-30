@@ -76,44 +76,22 @@ export default function socketHandler(req, res) {
                 for (let i = 0; i < roomMember.length; i++) {
                     if (roomMember[i].role == "n1") {
                         if (msg.role == "d1") {
-                            gameNS.to(roomMember[i].socketId).emit('friend-block', msg.block);
+                            gameNS.to(roomMember[i].socketId).emit('friend-block', {blockXml: msg.block, run: msg.run});
                         } else {
-                            gameNS.to(roomMember[i].socketId).emit('enemy-block', msg.block);
+                            gameNS.to(roomMember[i].socketId).emit('enemy-block', {blockXml: msg.block, run: msg.run});
                         }
                     } else if (roomMember[i].role == "n2") {
                         if (msg.role == "d2") {
-                            gameNS.to(roomMember[i].socketId).emit('friend-block', msg.block);
+                            gameNS.to(roomMember[i].socketId).emit('friend-block', {blockXml: msg.block, run: msg.run});
                         } else {
-                            gameNS.to(roomMember[i].socketId).emit('enemy-block', msg.block);
+                            gameNS.to(roomMember[i].socketId).emit('enemy-block', {blockXml: msg.block, run: msg.run});
                         }
                     } else if (roomMember[i].role == "d1" && msg.role == "d2"
                         || roomMember[i].role == "d2" && msg.role == "d1") {
-                        gameNS.to(roomMember[i].socketId).emit('enemy-block', msg.block);
+                        gameNS.to(roomMember[i].socketId).emit('enemy-block', {blockXml: msg.block, run: msg.run});
                     }
                 }
             })
-
-            socket.on('block-and-run', msg => {
-                let roomMember = store.filter(client => client.room == store[msg.id].room)
-                for (let i = 0; i < roomMember.length; i++) {
-                    if (roomMember[i].role == "n1") {
-                        if (msg.role == "d1") {
-                            gameNS.to(roomMember[i].socketId).emit('friend-block-run', msg.block);
-                        } else {
-                            gameNS.to(roomMember[i].socketId).emit('enemy-block-run', msg.block);
-                        }
-                    } else if (roomMember[i].role == "n2") {
-                        if (msg.role == "d2") {
-                            gameNS.to(roomMember[i].socketId).emit('friend-block-run', msg.block);
-                        } else {
-                            gameNS.to(roomMember[i].socketId).emit('enemy-block-run', msg.block);
-                        }
-                    } else if (roomMember[i].role == "d1" && msg.role == "d2"
-                        || roomMember[i].role == "d2" && msg.role == "d1") {
-                        gameNS.to(roomMember[i].socketId).emit('enemy-block-run', msg.block);
-                    }
-                }
-            });
 
             socket.on('game-finish', () => {
                 let index = store.findIndex(client => client.socketId == socket.id);
