@@ -88,7 +88,7 @@ export default function Game() {
         socket.on('you-are-first', first => {
             setFirst(first);
             setMyTurn(first);
-            if(first == true && (role == 'd1' || role == 'd2')){
+            if (first == true && (role == 'd1' || role == 'd2')) {
                 console.log('あなたは先行です');
                 startEmit();
             }
@@ -98,7 +98,7 @@ export default function Game() {
             friendRef.current.workspace.clear();
             friendRef.current.setXml(msg.blockXml);
             console.log('friend-updated');
-            if(msg.run == true){
+            if (msg.run == true) {
                 setMyTurn(prevMyTurn => {
                     stepRun(!prevMyTurn);
                     return !prevMyTurn;
@@ -110,7 +110,7 @@ export default function Game() {
             enemyRef.current.workspace.clear();
             enemyRef.current.setXml(msg.blockXml);
             console.log('enemy-updated');
-            if(msg.run == true){
+            if (msg.run == true) {
                 setMyTurn(prevMyTurn => {
                     stepRun(!prevMyTurn);
                     return !prevMyTurn;
@@ -153,28 +153,34 @@ export default function Game() {
     }
 
     function judgeResult() {
+        let x;
+        let y;
         let flag1 = 0;
         let flag2 = 0;
         setField(prevField => {
             const array = prevField;
             setPlayer1(prevPlayer1 => {
-                const x = prevPlayer1.x;
-                const y = prevPlayer1.y;
-                // ゲーム終了の判定、条件は後から変更する
-                if (0 < x && x < 10 && 0 < y && y < 10 && array[x][y - 1].value == 10 && array[x][y + 1].value == 10 && array[x - 1][y].value == 10 && array[x + 1][y].value == 10) {
-                    flag1 = 1;
-                }
                 setPlayer2(prevPlayer2 => {
-                    const x = prevPlayer2.x;
-                    const y = prevPlayer2.y;
-                    // ゲーム終了の判定、条件は後から変更する
-                    if (0 < x && x < 10 && 0 < y && y < 10 && array[x][y - 1].value == 10 && array[x][y + 1].value == 10 && array[x - 1][y].value == 10 && array[x + 1][y].value == 10) {
-                        flag2 = 1;
+                    for (let i = 1; i <= 2; i++) {
+                        eval("x = prevPlayer" + i + ".x;");
+                        eval("y = prevPlayer" + i + ".y;");
+                        console.log(x + ',' + y);
+                        if (0 < x && x < fieldHeight - 1 && 0 < y && y < fieldWidth - 1 && (array[x][y - 1].value != EMPTY && array[x][y + 1].value != EMPTY && array[x - 1][y].value != EMPTY && array[x + 1][y].value != EMPTY)
+                            || x == 0 && y == 0 && (array[x][y + 1].value != EMPTY && array[x + 1][y].value != EMPTY)
+                            || x == 0 && y == fieldWidth - 1 && (array[x][y - 1].value != EMPTY && array[x + 1][y].value != EMPTY)
+                            || x == fieldHeight - 1 && y == 0 && (array[x][y + 1].value != EMPTY && array[x - 1][y].value != EMPTY)
+                            || x == fieldHeight - 1 && y == fieldWidth - 1 && (array[x][y - 1].value != EMPTY && array[x - 1][y].value != EMPTY)
+                            || x == 0 && 0 < y && y < fieldWidth - 1 && (array[x][y - 1].value != EMPTY && array[x][y + 1].value != EMPTY && array[x + 1][y].value != EMPTY)
+                            || x == fieldHeight - 1 && 0 < y && y < fieldWidth - 1 && (array[x][y - 1].value != EMPTY && array[x][y + 1].value != EMPTY && array[x - 1][y].value != EMPTY)
+                            || 0 < x && x < fieldHeight - 1 && y == 0 && (array[x][y + 1].value != EMPTY && array[x - 1][y].value != EMPTY && array[x + 1][y].value != EMPTY)
+                            || 0 < x && x < fieldHeight - 1 && y == fieldWidth - 1 && (array[x][y - 1].value != EMPTY && array[x - 1][y].value != EMPTY && array[x + 1][y].value != EMPTY)) {
+                            eval("flag" + i + "= 1;");
+                        }
                     }
-                    return { x: x, y: y }
-                });
-                return { x: x, y: y }
-            });
+                    return { x: prevPlayer2.x, y: prevPlayer2.y }
+                })
+                return { x: prevPlayer1.x, y: prevPlayer1.y }
+            })
             if (flag1 == 1 && flag2 == 1) {
                 socket.emit('game-finish');
             } else if (flag1 == 1 && flag2 == 0) {
@@ -219,7 +225,7 @@ export default function Game() {
                 }
                 stepCode();
             }
-            if(role == 'd1' || role == 'd2'){
+            if (role == 'd1' || role == 'd2') {
                 switchEmit();
             }
             return prevTurn + 1;
