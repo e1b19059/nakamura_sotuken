@@ -43,7 +43,8 @@ export default function Game() {
     const [field, setField] = useState([]);
     const [player1, setPlayer1] = useState({ x: defaultX1, y: defaultY1 });
     const [player2, setPlayer2] = useState({ x: defaultX2, y: defaultY2 });
-    const [miss, setMiss] = useState(0);
+    const [miss1, setMiss1] = useState(0);
+    const [miss2, setMiss2] = useState(0);
     const [first, setFirst] = useState(false);
     const [turn, setTurn] = useState(1);
     const [myturn, setMyTurn] = useState(false);
@@ -282,7 +283,7 @@ export default function Game() {
                         return array;
                     });
                 } else {
-                    if (first == true) setMiss(prevMiss => prevMiss + 1);
+                    setMiss1(prevMiss1 => prevMiss1 + 1);
                 }
                 return { x: x, y: resultY }
             });
@@ -300,7 +301,7 @@ export default function Game() {
                         return array;
                     });
                 } else {
-                    if (first != true) setMiss(prevMiss => prevMiss + 1);
+                    setMiss2(prevMiss2 => prevMiss2 + 1);
                 }
                 return { x: x, y: resultY }
             });
@@ -322,7 +323,7 @@ export default function Game() {
                         return array;
                     });
                 } else {
-                    if (first == true) setMiss(prevMiss => prevMiss + 1);
+                    setMiss1(prevMiss1 => prevMiss1 + 1);
                 }
                 return { x: x, y: resultY }
             });
@@ -340,7 +341,7 @@ export default function Game() {
                         return array;
                     });
                 } else {
-                    if (first != true) setMiss(prevMiss => prevMiss + 1);
+                    setMiss2(prevMiss2 => prevMiss2 + 1);
                 }
                 return { x: x, y: resultY }
             });
@@ -362,7 +363,7 @@ export default function Game() {
                         return array;
                     });
                 } else {
-                    if (first == true) setMiss(prevMiss => prevMiss + 1);
+                    setMiss1(prevMiss1 => prevMiss1 + 1);
                 }
                 return { x: resultX, y: y }
             });
@@ -380,7 +381,7 @@ export default function Game() {
                         return array;
                     });
                 } else {
-                    if (first != true) setMiss(prevMiss => prevMiss + 1);
+                    setMiss2(prevMiss2 => prevMiss2 + 1);
                 }
                 return { x: resultX, y: y }
             });
@@ -402,7 +403,7 @@ export default function Game() {
                         return array;
                     });
                 } else {
-                    if (first == true) setMiss(prevMiss => prevMiss + 1);
+                    setMiss1(prevMiss1 => prevMiss1 + 1);
                 }
                 return { x: resultX, y: y }
             });
@@ -420,7 +421,7 @@ export default function Game() {
                         return array;
                     });
                 } else {
-                    if (first != true) setMiss(prevMiss => prevMiss + 1);
+                    setMiss2(prevMiss2 => prevMiss2 + 1);
                 }
                 return { x: resultX, y: y }
             });
@@ -439,32 +440,32 @@ export default function Game() {
                             if (y > 0 && array[x][y - 1].value == EMPTY) {
                                 array[x][y - 1].value = OBSTACLE;
                             } else {
-                                if (first == true) setMiss(prevMiss => prevMiss + 1);
+                                setMiss1(prevMiss1 => prevMiss1 + 1);
                             }
                             break;
                         case 'right':
                             if (y < fieldWidth - 1 && array[x][y + 1].value == EMPTY) {
                                 array[x][y + 1].value = OBSTACLE;
                             } else {
-                                if (first == true) setMiss(prevMiss => prevMiss + 1);
+                                setMiss1(prevMiss1 => prevMiss1 + 1);
                             }
                             break;
                         case 'up':
                             if (x > 0 && array[x - 1][y].value == EMPTY) {
                                 array[x - 1][y].value = OBSTACLE;
                             } else {
-                                if (first == true) setMiss(prevMiss => prevMiss + 1);
+                                setMiss1(prevMiss1 => prevMiss1 + 1);
                             }
                             break;
                         case 'down':
                             if (x < fieldHeight - 1 && array[x + 1][y].value == EMPTY) {
                                 array[x + 1][y].value = OBSTACLE;
                             } else {
-                                if (first == true) setMiss(prevMiss => prevMiss + 1);
+                                setMiss1(prevMiss1 => prevMiss1 + 1);
                             }
                             break;
                         default:
-                            if (first == true) setMiss(prevMiss => prevMiss + 1);
+                            setMiss1(prevMiss1 => prevMiss1 + 1);
                             break;
                     }
                     return array;
@@ -482,32 +483,32 @@ export default function Game() {
                             if (y > 0 && array[x][y - 1].value == EMPTY) {
                                 array[x][y - 1].value = OBSTACLE;
                             } else {
-                                if (first != true) setMiss(prevMiss => prevMiss + 1);
+                                setMiss2(prevMiss2 => prevMiss2 + 1);
                             }
                             break;
                         case 'right':
                             if (y < fieldWidth - 1 && array[x][y + 1].value == EMPTY) {
                                 array[x][y + 1].value = OBSTACLE;
                             } else {
-                                if (first != true) setMiss(prevMiss => prevMiss + 1);
+                                setMiss2(prevMiss2 => prevMiss2 + 1);
                             }
                             break;
                         case 'up':
                             if (x > 0 && array[x - 1][y].value == EMPTY) {
                                 array[x - 1][y].value = OBSTACLE;
                             } else {
-                                if (first != true) setMiss(prevMiss => prevMiss + 1);
+                                setMiss2(prevMiss2 => prevMiss2 + 1);
                             }
                             break;
                         case 'down':
                             if (x < fieldHeight - 1 && array[x + 1][y].value == EMPTY) {
                                 array[x + 1][y].value = OBSTACLE;
                             } else {
-                                if (first != true) setMiss(prevMiss => prevMiss + 1);
+                                setMiss2(prevMiss2 => prevMiss2 + 1);
                             }
                             break;
                         default:
-                            if (first != true) setMiss(prevMiss => prevMiss + 1);
+                            setMiss2(prevMiss2 => prevMiss2 + 1);
                             break;
                     }
                     return array;
@@ -535,7 +536,7 @@ export default function Game() {
 
     // 確認用
     const getMiss = () => {
-        console.log(miss);
+        console.log('ミスの回数{team1:' + miss1 + ', team2:' + miss2 +'}');
     }
     const getMyTurn = () => {
         console.log('myturn:' + myturn + ',turn数:' + turn);
