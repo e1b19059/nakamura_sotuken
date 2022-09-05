@@ -50,7 +50,8 @@ export default function Game() {
     const [myturn, setMyTurn] = useState(false);
     const [driver, setDriver] = useState(() => role == "d1" || role == "d2" ? true : false);
     const [navigator, setNavigator] = useState(() => role == "n1" || role == "n2" ? true : false);
-    const [finish, setFinish] = useState(false)
+    const [finish, setFinish] = useState(false);
+    const [result, setResult] = useState(0);
 
     useEffect(() => {
         let array = [];
@@ -183,10 +184,13 @@ export default function Game() {
                 return { x: prevPlayer1.x, y: prevPlayer1.y }
             })
             if (flag1 == 1 && flag2 == 1) {
-                socket.emit('game-finish');
-            } else if (flag1 == 1 && flag2 == 0) {
+                setResult(0);
                 socket.emit('game-finish');
             } else if (flag1 == 0 && flag2 == 1) {
+                setResult(1);
+                socket.emit('game-finish');
+            } else if (flag1 == 1 && flag2 == 0) {
+                setResult(2);
                 socket.emit('game-finish');
             }
             return array;
@@ -536,7 +540,7 @@ export default function Game() {
 
     // 確認用
     const getMiss = () => {
-        console.log('ミスの回数{team1:' + miss1 + ', team2:' + miss2 +'}');
+        console.log('ミスの回数{team1:' + miss1 + ', team2:' + miss2 + '}');
     }
     const getMyTurn = () => {
         console.log('myturn:' + myturn + ',turn数:' + turn);
@@ -550,7 +554,12 @@ export default function Game() {
             <div className={styles.buttonClass}>
                 <button onClick={getMiss}>ミスの回数</button>
                 <button onClick={getMyTurn}>ターン確認</button>
-                {finish && <button onClick={() => { router.push('result') }}>結果画面へ</button>}
+                {finish &&
+                    <button onClick={() => {
+                        router.push({ pathname: 'result', query: { result: result, miss1: miss1, miss2: miss2, turn: turn } }, 'result');
+                    }}>結果画面へ
+                    </button>
+                }
             </div>
             <RenderField field={field} />
             {driver && (
