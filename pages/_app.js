@@ -161,7 +161,7 @@ export default function MyApp({ Component, pageProps }) {
             )}
             {auth && session && (
                 <>
-                    <DataContext.Provider value={{ socket: socket, id: id, role: role, logout: () => { logout() } }}>
+                    <DataContext.Provider value={{ socket: socket, id: id, role: role, roomMember: members.filter(member => member.room == room), logout: () => { logout() } }}>
                         <Component {...pageProps} />
                     </DataContext.Provider>
                 </>

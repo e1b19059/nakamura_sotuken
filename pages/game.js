@@ -185,13 +185,13 @@ export default function Game() {
             })
             if (flag1 == 1 && flag2 == 1) {
                 setResult(0);
-                socket.emit('game-finish');
+                socket.emit('game-finish', { id: id });
             } else if (flag1 == 0 && flag2 == 1) {
                 setResult(1);
-                socket.emit('game-finish');
+                socket.emit('game-finish', { id: id });
             } else if (flag1 == 1 && flag2 == 0) {
                 setResult(2);
-                socket.emit('game-finish');
+                socket.emit('game-finish', { id: id });
             }
             return array;
         })
