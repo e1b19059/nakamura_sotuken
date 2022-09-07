@@ -55,11 +55,20 @@ export default function socketHandler(req, res) {
                 socket.emit('clients-and-role', { clients: store, room: msg.room });
                 socket.broadcast.emit('all-clients', { clients: store });
 
-                if (roomMember.find(client => client.role == "d1")
-                    && roomMember.find(client => client.role == "n1")
-                    && roomMember.find(client => client.role == "d2")
-                    && roomMember.find(client => client.role == "n2")) {
+                // ここは後から変更する
+                store[msg.id].status = "ready";
+
+                if (roomMember.find(client => client.role == "d1").status == "ready"
+                    && roomMember.find(client => client.role == "n1").status == "ready"
+                    && roomMember.find(client => client.role == "d2").status == "ready"
+                    && roomMember.find(client => client.role == "n2").status == "ready") {
                     gameNS.to(store[msg.id].room).emit('router-push', roomMember);
+
+                    store.forEach(element => {
+                        if (element.room == store[msg.id].room) {
+                            element.status = "playing";
+                        }
+                    });
                 }
             });
 
@@ -76,34 +85,26 @@ export default function socketHandler(req, res) {
                 for (let i = 0; i < roomMember.length; i++) {
                     if (roomMember[i].role == "n1") {
                         if (msg.role == "d1") {
-                            gameNS.to(roomMember[i].socketId).emit('friend-block', {blockXml: msg.block, run: msg.run});
+                            gameNS.to(roomMember[i].socketId).emit('friend-block', { blockXml: msg.block, run: msg.run });
                         } else {
-                            gameNS.to(roomMember[i].socketId).emit('enemy-block', {blockXml: msg.block, run: msg.run});
+                            gameNS.to(roomMember[i].socketId).emit('enemy-block', { blockXml: msg.block, run: msg.run });
                         }
                     } else if (roomMember[i].role == "n2") {
                         if (msg.role == "d2") {
-                            gameNS.to(roomMember[i].socketId).emit('friend-block', {blockXml: msg.block, run: msg.run});
+                            gameNS.to(roomMember[i].socketId).emit('friend-block', { blockXml: msg.block, run: msg.run });
                         } else {
-                            gameNS.to(roomMember[i].socketId).emit('enemy-block', {blockXml: msg.block, run: msg.run});
+                            gameNS.to(roomMember[i].socketId).emit('enemy-block', { blockXml: msg.block, run: msg.run });
                         }
                     } else if (roomMember[i].role == "d1" && msg.role == "d2"
                         || roomMember[i].role == "d2" && msg.role == "d1") {
-                        gameNS.to(roomMember[i].socketId).emit('enemy-block', {blockXml: msg.block, run: msg.run});
+                        gameNS.to(roomMember[i].socketId).emit('enemy-block', { blockXml: msg.block, run: msg.run });
                     }
                 }
             })
 
-            socket.on('game-finish', () => {
-                let index = store.findIndex(client => client.socketId == socket.id);
-                let room = store[index].room;
-                let roomMember;
-
-                store[index].status = "finished";
-                roomMember = store.filter(client => client.room == room);
-
-                if (roomMember.every(client => client.status == "finished")) {
-                    gameNS.to(room).emit('result-router');
-                }
+            socket.on('game-finish', msg => {
+                store[msg.id].status = "finished";
+                socket.emit('result-router');
             });
 
             socket.on('disconnect', () => {

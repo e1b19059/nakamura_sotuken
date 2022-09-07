@@ -1,4 +1,5 @@
 import '../styles/globals.css';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { DataContext } from '../components/DataContext';
 import { useState } from 'react';
@@ -138,6 +139,7 @@ export default function MyApp({ Component, pageProps }) {
         <>
             {!auth && (
                 <>
+                    <Head><title>ホーム</title></Head>
                     <h1>名前を入力してください</h1>
                     <input name="name" onKeyPress={e => {
                         const name = e.target.value;
@@ -151,6 +153,7 @@ export default function MyApp({ Component, pageProps }) {
             )}
             {auth && !session && (
                 <>
+                    <Head><title>ホーム</title></Head>
                     <h1>あなたの名前は {name} です</h1>
                     <button onClick={() => { logout() }}>ログアウト</button>
                     {roomRender(room)}
@@ -158,7 +161,7 @@ export default function MyApp({ Component, pageProps }) {
             )}
             {auth && session && (
                 <>
-                    <DataContext.Provider value={{ socket: socket, id: id, role: role, logout: () => { logout() } }}>
+                    <DataContext.Provider value={{ socket: socket, id: id, role: role, roomMember: members.filter(member => member.room == room), logout: () => { logout() } }}>
                         <Component {...pageProps} />
                     </DataContext.Provider>
                 </>
