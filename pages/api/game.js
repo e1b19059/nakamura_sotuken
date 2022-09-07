@@ -58,16 +58,14 @@ export default function socketHandler(req, res) {
                 // ここは後から変更する
                 store[msg.id].status = "ready";
 
-                //statusも確認するようにする
                 if (roomMember.find(client => client.role == "d1").status == "ready"
                     && roomMember.find(client => client.role == "n1").status == "ready"
                     && roomMember.find(client => client.role == "d2").status == "ready"
                     && roomMember.find(client => client.role == "n2").status == "ready") {
                     gameNS.to(store[msg.id].room).emit('router-push', roomMember);
-                    
-                    // room内の全員のstatusを変更するように修正
+
                     store.forEach(element => {
-                        if(element.room == store[msg.id].room){
+                        if (element.room == store[msg.id].room) {
                             element.status = "playing";
                         }
                     });
