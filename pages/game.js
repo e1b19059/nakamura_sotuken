@@ -29,6 +29,7 @@ const EMPTY = 0;
 const PLAYER1 = 1;
 const PLAYER2 = 2;
 const OBSTACLE = 10;
+const OBSTACLE_NUMBER = 2;
 
 export default function Game() {
     const router = useRouter();
@@ -52,6 +53,7 @@ export default function Game() {
     const [navigator, setNavigator] = useState(() => role == "n1" || role == "n2" ? true : false);
     const [finish, setFinish] = useState(false);
     const [result, setResult] = useState(0);
+    const [number, setNumber] = useState(OBSTACLE_NUMBER);
 
     useEffect(() => {
         let array = [];
@@ -154,6 +156,10 @@ export default function Game() {
         }
     }
 
+    function initTurn() {
+        setNumber(OBSTACLE_NUMBER);
+    }
+
     function judgeResult() {
         let x;
         let y;
@@ -204,7 +210,7 @@ export default function Game() {
         } else {
             code = BlocklyJS.workspaceToCode(enemyRef.current.workspace);
         }
-        return code + 'judgeResult();\n';
+        return 'initTurn();\n' + code + 'judgeResult();\n';
     }
 
     function doCode() {
@@ -266,6 +272,10 @@ export default function Game() {
             return judgeResult();
         };
         interpreter.setProperty(scope, 'judgeResult', interpreter.createNativeFunction(judge_wrapper));
+        let init_wrapper = function () {
+            return initTurn();
+        };
+        interpreter.setProperty(scope, 'initTurn', interpreter.createNativeFunction(init_wrapper));
     }
 
     function console_log(value) {
@@ -434,90 +444,112 @@ export default function Game() {
 
     const put_obstacle = (direction) => {
         if (myturn == true && first == false || myturn == false && first == true) {
-            setPlayer1(prevPlayer1 => {
-                const x = prevPlayer1.x;
-                const y = prevPlayer1.y;
-                setField(prevField => {
-                    const array = prevField;
-                    switch (direction) {
-                        case 'left':
-                            if (y > 0 && array[x][y - 1].value == EMPTY) {
-                                array[x][y - 1].value = OBSTACLE;
-                            } else {
-                                setMiss1(prevMiss1 => prevMiss1 + 1);
+            setNumber(prevNumber => {
+                if (prevNumber > 0) {
+                    setPlayer1(prevPlayer1 => {
+                        const x = prevPlayer1.x;
+                        const y = prevPlayer1.y;
+                        setField(prevField => {
+                            const array = prevField;
+                            switch (direction) {
+                                case 'left':
+                                    if (y > 0 && array[x][y - 1].value == EMPTY) {
+                                        array[x][y - 1].value = OBSTACLE;
+                                        prevNumber--;
+                                    } else {
+                                        setMiss1(prevMiss1 => prevMiss1 + 1);
+                                    }
+                                    break;
+                                case 'right':
+                                    if (y < fieldWidth - 1 && array[x][y + 1].value == EMPTY) {
+                                        array[x][y + 1].value = OBSTACLE;
+                                        prevNumber--;
+                                    } else {
+                                        setMiss1(prevMiss1 => prevMiss1 + 1);
+                                    }
+                                    break;
+                                case 'up':
+                                    if (x > 0 && array[x - 1][y].value == EMPTY) {
+                                        array[x - 1][y].value = OBSTACLE;
+                                        prevNumber--;
+                                    } else {
+                                        setMiss1(prevMiss1 => prevMiss1 + 1);
+                                    }
+                                    break;
+                                case 'down':
+                                    if (x < fieldHeight - 1 && array[x + 1][y].value == EMPTY) {
+                                        array[x + 1][y].value = OBSTACLE;
+                                        prevNumber--;
+                                    } else {
+                                        setMiss1(prevMiss1 => prevMiss1 + 1);
+                                    }
+                                    break;
+                                default:
+                                    setMiss1(prevMiss1 => prevMiss1 + 1);
+                                    break;
                             }
-                            break;
-                        case 'right':
-                            if (y < fieldWidth - 1 && array[x][y + 1].value == EMPTY) {
-                                array[x][y + 1].value = OBSTACLE;
-                            } else {
-                                setMiss1(prevMiss1 => prevMiss1 + 1);
-                            }
-                            break;
-                        case 'up':
-                            if (x > 0 && array[x - 1][y].value == EMPTY) {
-                                array[x - 1][y].value = OBSTACLE;
-                            } else {
-                                setMiss1(prevMiss1 => prevMiss1 + 1);
-                            }
-                            break;
-                        case 'down':
-                            if (x < fieldHeight - 1 && array[x + 1][y].value == EMPTY) {
-                                array[x + 1][y].value = OBSTACLE;
-                            } else {
-                                setMiss1(prevMiss1 => prevMiss1 + 1);
-                            }
-                            break;
-                        default:
-                            setMiss1(prevMiss1 => prevMiss1 + 1);
-                            break;
-                    }
-                    return array;
-                });
-                return { x: x, y: y }
+                            return array;
+                        });
+                        return { x: x, y: y }
+                    });
+                } else {
+                    setMiss1(prevMiss1 => prevMiss1 + 1);
+                }
+                return prevNumber;
             });
         } else {
-            setPlayer2(prevPlayer2 => {
-                const x = prevPlayer2.x;
-                const y = prevPlayer2.y;
-                setField(prevField => {
-                    const array = prevField;
-                    switch (direction) {
-                        case 'left':
-                            if (y > 0 && array[x][y - 1].value == EMPTY) {
-                                array[x][y - 1].value = OBSTACLE;
-                            } else {
-                                setMiss2(prevMiss2 => prevMiss2 + 1);
+            setNumber(prevNumber => {
+                if (prevNumber > 0) {
+                    setPlayer2(prevPlayer2 => {
+                        const x = prevPlayer2.x;
+                        const y = prevPlayer2.y;
+                        setField(prevField => {
+                            const array = prevField;
+                            switch (direction) {
+                                case 'left':
+                                    if (y > 0 && array[x][y - 1].value == EMPTY) {
+                                        array[x][y - 1].value = OBSTACLE;
+                                        prevNumber--;
+                                    } else {
+                                        setMiss2(prevMiss2 => prevMiss2 + 1);
+                                    }
+                                    break;
+                                case 'right':
+                                    if (y < fieldWidth - 1 && array[x][y + 1].value == EMPTY) {
+                                        array[x][y + 1].value = OBSTACLE;
+                                        prevNumber--;
+                                    } else {
+                                        setMiss2(prevMiss2 => prevMiss2 + 1);
+                                    }
+                                    break;
+                                case 'up':
+                                    if (x > 0 && array[x - 1][y].value == EMPTY) {
+                                        array[x - 1][y].value = OBSTACLE;
+                                        prevNumber--;
+                                    } else {
+                                        setMiss2(prevMiss2 => prevMiss2 + 1);
+                                    }
+                                    break;
+                                case 'down':
+                                    if (x < fieldHeight - 1 && array[x + 1][y].value == EMPTY) {
+                                        array[x + 1][y].value = OBSTACLE;
+                                        prevNumber--;
+                                    } else {
+                                        setMiss2(prevMiss2 => prevMiss2 + 1);
+                                    }
+                                    break;
+                                default:
+                                    setMiss2(prevMiss2 => prevMiss2 + 1);
+                                    break;
                             }
-                            break;
-                        case 'right':
-                            if (y < fieldWidth - 1 && array[x][y + 1].value == EMPTY) {
-                                array[x][y + 1].value = OBSTACLE;
-                            } else {
-                                setMiss2(prevMiss2 => prevMiss2 + 1);
-                            }
-                            break;
-                        case 'up':
-                            if (x > 0 && array[x - 1][y].value == EMPTY) {
-                                array[x - 1][y].value = OBSTACLE;
-                            } else {
-                                setMiss2(prevMiss2 => prevMiss2 + 1);
-                            }
-                            break;
-                        case 'down':
-                            if (x < fieldHeight - 1 && array[x + 1][y].value == EMPTY) {
-                                array[x + 1][y].value = OBSTACLE;
-                            } else {
-                                setMiss2(prevMiss2 => prevMiss2 + 1);
-                            }
-                            break;
-                        default:
-                            setMiss2(prevMiss2 => prevMiss2 + 1);
-                            break;
-                    }
-                    return array;
-                });
-                return { x: x, y: y }
+                            return array;
+                        });
+                        return { x: x, y: y }
+                    });
+                } else {
+                    setMiss2(prevMiss2 => prevMiss2 + 1);
+                }
+                return prevNumber;
             });
         }
     }
