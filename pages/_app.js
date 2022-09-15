@@ -66,7 +66,10 @@ export default function MyApp({ Component, pageProps }) {
             let role = roomMember.find(member => member.socketId == socket.id).role;
             setRole(role);
             setSession(true);
-            router.push('game')
+            router.push('game');
+            socket.off('all-clients');
+            socket.off('clients-and-room');
+            socket.off('clients-and-role');
         })
 
         socket.on('disconnect', () => {

@@ -104,7 +104,8 @@ const put_obstacle = {
   "args0": [
     {
       "type": "input_value",
-      "name": "direction"
+      "name": "direction",
+      "check": "direction",
     }
   ],
   "inputsInline": true,
@@ -125,7 +126,7 @@ const get_left = {
   "type": "get_left",
   "message0": "左",
   "inputsInline": true,
-  "output": null,
+  "output": "direction",
   "colour": 230,
   "tooltip": "",
   "helpUrl": ""
@@ -135,7 +136,7 @@ const get_right = {
   "type": "get_right",
   "message0": "右",
   "inputsInline": true,
-  "output": null,
+  "output": "direction",
   "colour": 230,
   "tooltip": "",
   "helpUrl": ""
@@ -145,7 +146,7 @@ const get_up = {
   "type": "get_up",
   "message0": "上",
   "inputsInline": true,
-  "output": null,
+  "output": "direction",
   "colour": 230,
   "tooltip": "",
   "helpUrl": ""
@@ -155,7 +156,7 @@ const get_down = {
   "type": "get_down",
   "message0": "下",
   "inputsInline": true,
-  "output": null,
+  "output": "direction",
   "colour": 230,
   "tooltip": "",
   "helpUrl": ""
@@ -182,5 +183,65 @@ Blockly.Blocks['get_up'] = {
 Blockly.Blocks['get_down'] = {
   init: function () {
     this.jsonInit(get_down);
+  }
+};
+
+const check_object = {
+  "type": "check_object",
+  "message0": "%1 方向に %2 がある",
+  "args0": [
+    {
+      "type": "input_value",
+      "name": "direction",
+      "check": "direction",
+    },
+    {
+      "type": "input_value",
+      "name": "object",
+      "check": "object",
+    }
+  ],
+  "inputsInline": true,
+  "output": "Boolean",
+  "colour": 230,
+  "tooltip": "",
+  "helpUrl": ""
+}
+
+Blockly.Blocks['check_object'] = {
+  init: function () {
+    this.jsonInit(check_object);
+  }
+};
+
+const obstacle = {
+  "type": "obstacle",
+  "message0": "障害物",
+  "inputsInline": true,
+  "output": "object",
+  "colour": 230,
+  "tooltip": "",
+  "helpUrl": ""
+}
+
+Blockly.Blocks['obstacle'] = {
+  init: function () {
+    this.jsonInit(obstacle);
+  }
+};
+
+const player = {
+  "type": "player",
+  "message0": "相手プレイヤー",
+  "inputsInline": true,
+  "output": "object",
+  "colour": 230,
+  "tooltip": "",
+  "helpUrl": ""
+}
+
+Blockly.Blocks['player'] = {
+  init: function () {
+    this.jsonInit(player);
   }
 };
