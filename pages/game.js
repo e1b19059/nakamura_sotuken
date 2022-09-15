@@ -276,6 +276,11 @@ export default function Game() {
             return initTurn();
         };
         interpreter.setProperty(scope, 'initTurn', interpreter.createNativeFunction(init_wrapper));
+        let check_wrapper = function (direction, object) {
+            return check_object(direction, object);
+        };
+        interpreter.setProperty(scope, 'check_object', interpreter.createNativeFunction(check_wrapper));
+        interpreter.setProperty(scope, 'OBSTACLE', OBSTACLE);
     }
 
     function console_log(value) {
@@ -554,6 +559,77 @@ export default function Game() {
         }
     }
 
+    const check_object = (direction, object) => {
+        let value;
+        if (myturn == true && first == false || myturn == false && first == true) {
+            if (direction == null || object == null) {
+                setMiss1(prevMiss1 => prevMiss1 + 1);
+                return false;
+            }
+            setPlayer1(prevPlayer1 => {
+                const x = prevPlayer1.x;
+                const y = prevPlayer1.y;
+                setField(prevField => {
+                    switch (direction) {
+                        case 'left':
+                            if (y > 0) { value = prevField[x][y - 1].value; } else { value = null; }
+                            break;
+                        case 'right':
+                            if (y < fieldWidth - 1) { value = prevField[x][y + 1].value; } else { value = null; }
+                            break;
+                        case 'up':
+                            if (x > 0) { value = prevField[x - 1][y].value; } else { value = null; }
+                            break;
+                        case 'down':
+                            if (x < fieldHeight - 1) { value = prevField[x + 1][y].value; } else { value = null; }
+                            break;
+                        default:
+                            break;
+                    }
+                    return prevField;
+                });
+                return prevPlayer1;
+            });
+        } else {
+            if (direction == null || object == null) {
+                setMiss2(prevMiss2 => prevMiss2 + 1);
+                return false;
+            }
+            setPlayer2(prevPlayer2 => {
+                const x = prevPlayer2.x;
+                const y = prevPlayer2.y;
+                setField(prevField => {
+                    switch (direction) {
+                        case 'left':
+                            if (y > 0) { value = prevField[x][y - 1].value; } else { value = null; }
+                            break;
+                        case 'right':
+                            if (y < fieldWidth - 1) { value = prevField[x][y + 1].value; } else { value = null; }
+                            break;
+                        case 'up':
+                            if (x > 0) { value = prevField[x - 1][y].value; } else { value = null; }
+                            break;
+                        case 'down':
+                            if (x < fieldHeight - 1) { value = prevField[x + 1][y].value; } else { value = null; }
+                            break;
+                        default:
+                            break;
+                    }
+                    return prevField;
+                });
+                return prevPlayer2;
+            });
+        }
+        if (object == 'PLAYER') {
+            if (PLAYER1 == value || PLAYER2 == value) {
+                return true;
+            }
+        } else if (object == value) {
+            return true;
+        }
+        return false;
+    }
+
     function RenderField(props) {
         return (
             <div className={styles.gameMap}>
@@ -623,6 +699,9 @@ export default function Game() {
                                 <Block type="get_right" />
                                 <Block type="get_up" />
                                 <Block type="get_down" />
+                                <Block type="check_object" />
+                                <Block type="obstacle" />
+                                <Block type="player" />
                                 <Block type="controls_repeat_ext">
                                     <Value name="TIMES">
                                         <Shadow type="math_number">
@@ -630,6 +709,7 @@ export default function Game() {
                                         </Shadow>
                                     </Value>
                                 </Block>
+                                <Block type="controls_if" />
                             </BlocklyComponent>
                         </>
                     )}
